@@ -9,6 +9,9 @@ class ProductVariantManager:
     def generate_sku_code():
         settings = SystemSettings.objects.filter(
             name='LAST_SKU_CODE_VALUE').first()
+        if not settings:
+            settings = SystemSettings(name='LAST_SKU_CODE_VALUE', value='0')
+            settings.save()
         last_sku_value = settings.value
         current_sku = int(last_sku_value) + 1
         settings.value = str(current_sku)
