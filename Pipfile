@@ -17,6 +17,8 @@ supervisor = "==4.2.4"
 pymysql = "==1.1.2"
 ipython = "==8.12.3"
 boto3 = "1.37.38"
+cryptography = "*"
+
 [dev-packages]
 
 [requires]
