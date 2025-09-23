@@ -1,7 +1,9 @@
 from common.models import SystemSettings
 
 
-class ProductVariantManager():
+class ProductVariantManager:
+    def __init__(self):
+        pass
     
     @staticmethod
     def generate_sku_code():
@@ -13,5 +15,6 @@ class ProductVariantManager():
         settings.save()
         
         return f"SKU{str(current_sku).zfill(8)}"
+    
 
         

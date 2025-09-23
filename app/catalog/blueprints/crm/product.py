@@ -8,6 +8,7 @@ from common.resource.base import CommonResource
 from catalog.schemas.post_requests.product_meta import PostProductMetaSchema
 from catalog.miscellaneous_values.product import ProductMetaAtrributes
 from catalog.managers.product_meta_manager import ProductMetaManager
+from catalog.managers.product_manager import ProductManager
 
 
 os.environ.setdefault(
@@ -73,4 +74,19 @@ class ProductMetaAPI(CommonResource):
         
         return ErrorHandler(message="Invalid attribute name").error_response()
     
+
+class Product(CommonResource):
+    def get(self) -> dict:
+        parameters = request.args.to_dict()
+        page = parameters.get('page', 1)
+        limit = parameters.get('limit', 10)
+        products = ProductManager.get_products_using_filters()
+        pagination_handler = PaginationHandler(page, limit, request.path, request.args)
+        pagination_data = pagination_handler.get_pagination_data(products)
+        next_url = pagination_data.get("next_url")
+        prev_url = pagination_data.get("prev_url")
+        paginated_products = pagination_data.get("results")
+        response = ProductManager.multiple_product_response_data_for_crm(paginated_products)
+        return SuccessHandler(response, request_obj=request).success_response(
+            paginate=True, next_url=next_url, prev_url=prev_url, total_count=products.count())
 
