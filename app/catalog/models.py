@@ -65,6 +65,7 @@ class Product(TimeStampedModel):
     fabric = models.CharField(max_length=255, default='', blank=True, null=True)
     color = models.CharField(max_length=255, default='', blank=True, null=True)
     url_slug = models.SlugField(max_length=512, unique=True) #seo friendly url
+    primary_image = models.CharField(max_length=1000, default='')
 
     # relationships
     categories = models.ManyToManyField(Category, related_name="products", blank=True)
@@ -77,6 +78,7 @@ class Product(TimeStampedModel):
         return self.display_name
 
 
+#TODO: add histories to product variant model to track updates
 class ProductVariant(TimeStampedModel):
     """Variants of a product (size, SKU, stock, price)."""
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
@@ -111,6 +113,16 @@ class ProductImage(TimeStampedModel):
 
     def __str__(self):
         return f"{self.product.display_name} image ({self.sort_order})"
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        try:
+            if self.sort_order == 0:
+                self.product.primary_image = self.image_url
+                self.product.save()
+        except Exception as e:
+            pass
+        
     
 
 class GenericBulkUploadResponse(TimeStampedModel):
