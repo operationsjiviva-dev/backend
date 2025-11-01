@@ -2,12 +2,16 @@ from order.models import Order, OrderPayment, OrderProduct
 import secrets
 from order.managers.cart_manager import CartManager
 from order.handlers.pre_order_cart_validation import PreOrderCartValidationHandler
+from order.exceptions.order import OrderDoesNotExist
+from datetime import datetime
 
 
 class OrderManager:
 
-    def __init__(self):
-        pass
+    def __init__(self, order_id: int):
+        self.order = Order.objects.filter(pk=order_id).first()
+        if not self.order:
+            raise OrderDoesNotExist
 
     @classmethod
     def create_order_id(cls):
@@ -44,7 +48,8 @@ class OrderManager:
         if not order_id:
             order_id = cls.create_order_id()
         
-        cart_data = CartManager(cart_id).get_cart_data()
+        cart_manager = CartManager(cart_id)
+        cart_data = cart_manager.get_cart_data()
         pre_order_validation_handler = PreOrderCartValidationHandler(cart_data)
         pre_order_validation_handler.validate_data()
 
@@ -61,9 +66,30 @@ class OrderManager:
         order.delivery_address = delivery_address
 
         order.save()
+        cart_manager.mark_cart_as_closed()
         cls.create_order_products(cart_products)
 
         return order
+    
+    @classmethod
+    def get_orders_with_filters(cls, parameters: dict):
+        filters = {}
+        if 'phone_number' in parameters:
+            filters['customer__phone_number'] = parameters.get('phone_number')
+        if 'order_id' in parameters:
+            filters['id'] = parameters.get('order_id')
+        if 'start_date' in parameters and 'end_date' in parameters:
+            start_date = datetime.fromtimestamp(int(parameters.get('start_date'))/1000)
+            end_date = datetime.fromtimestamp(int(parameters.get('end_date'))/1000)
+            filters['created_on__range'] = (start_date, end_date)
+        if 'delivery_status' in parameters:
+            filters['delivery_status'] = parameters.get('delivery_status').upper()
+
+        orders = Order.objects.filter(**filters).order_by('-created_on')
+        return orders
+    
+
+
         
         
         

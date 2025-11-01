@@ -14,7 +14,7 @@ class DeliveryAddress(TimeStampedModel):
 
 class Cart(TimeStampedModel):
     customer = models.ForeignKey("customer.Customer", null=True, on_delete=models.CASCADE)
-    status = models.CharField(max_length=256, default='PENDING')
+    status = models.CharField(max_length=256, default='OPEN')
     payment_preference = models.CharField(max_length=18, default='DIGITAL')
     delivery_address = models.ForeignKey(DeliveryAddress, null=True, on_delete=models.CASCADE)
 

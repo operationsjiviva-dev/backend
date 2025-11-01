@@ -19,6 +19,17 @@ django.setup()
 cart_blueprint = Blueprint('cart_blueprint', __name__)
 
 
+class CartAPI(CommonResource):
+    def get(self):
+        customer_id = request.headers.get('Customer-Id')
+        cart = CartManager.get_or_create_cart(customer_id)
+        cart_manager = CartManager(cart.id)
+        cart_data = cart_manager.get_cart_data()
+        response_schema = CartResponseSchema()
+        response = response_schema.dump(cart_data)
+        return SuccessHandler(response, request_obj=request).success_response()
+
+
 class CartProductAPI(CommonResource):
     def post(self, cart_id: int):
         post_data = request.get_json(force=True)

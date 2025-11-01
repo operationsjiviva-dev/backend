@@ -21,3 +21,9 @@ class PaymentPreferenceNotSet(Exception):
         message = "Payment preference not set"
         super().__init__(message)
 
+
+class OrderDoesNotExist(Exception):
+    def __init__(self):
+        message = "Order does not exist"
+        super().__init__(message)
+

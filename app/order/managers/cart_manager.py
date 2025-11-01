@@ -4,6 +4,7 @@ from order.exceptions.cart import CartDoesNotExist, ProductDoesNotExist, Product
 from catalog.models import Product, ProductVariant
 from order.miscellaneous_values.cart import CartPaymentPreference
 import json
+from order.miscellaneous_values.cart import CartStatus
 
 
 class CartManager:
@@ -106,6 +107,19 @@ class CartManager:
     @classmethod
     def get_cart_by_id(cls, cart_id: int):
         return Cart.objects.filter(pk=cart_id).first()
+    
+    @classmethod
+    def get_or_create_cart(cls, customer_id: int):
+        cart = Cart.objects.filter(customer_id=customer_id, status=CartStatus.OPEN).first()
+        if not cart:
+            cart = Cart.objects.create(customer_id=customer_id)
+        
+        return cart
+    
+    def mark_cart_as_closed(self):
+        self.cart.status = CartStatus.CLOSED
+        self.cart.save()
+        return True
        
 
     
