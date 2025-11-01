@@ -75,7 +75,7 @@ class ProductMetaAPI(CommonResource):
         return ErrorHandler(message="Invalid attribute name").error_response()
     
 
-class Product(CommonResource):
+class ProductsAPI(CommonResource):
     def get(self) -> dict:
         parameters = request.args.to_dict()
         page = parameters.get('page', 1)

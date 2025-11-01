@@ -1,0 +1,7 @@
+from .bulk_update_product_categories import BULK_UPDATE_PRODUCT_CATEGORIES_MAPPING
+from .bulk_update_product_tags import BULK_UPDATE_PRODUCT_TAGS_MAPPING
+from .bulk_update_product_collection import BULK_UPDATE_PRODUCT_COLLECTION_MAPPING
+from .bulk_update_product_occasion import BULK_UPDATE_PRODUCT_OCCASION_MAPPING
+from .bulk_update_variants import BULK_UPDATE_PRODUCT_VARIANTS
+from .bulk_upload_products import BULK_UPLOAD_PRODUCTS
+from .bulk_upload_variants import BULK_UPLOAD_PRODUCT_VARIANTS

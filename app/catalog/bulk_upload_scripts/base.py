@@ -87,8 +87,7 @@ class BulkUploadeBaseClass(ABC):
             request_dict['reason'] = request_dict.get('reason', '')
             request_dict['warning'] = ''
             try:
-                success, result = self.process_row(request_dict, force_add=kwargs.get(
-                    'force_add', False), store_id=kwargs.get('store_id', None))
+                success, result = self.process_row(request_dict)
                 if success:
                     request_dict['status'] = True
                     request_dict.update(result)
@@ -107,7 +106,7 @@ class BulkUploadeBaseClass(ABC):
 
         return True, request_list_of_dict
 
-    def run(self, force_add: bool = False, store_id: str = None):
+    def run(self):
         """
         Starting function to run the bulk upload. It will run the bulk upload
         request and update the status of bulk upload request and bulk upload response
@@ -119,7 +118,7 @@ class BulkUploadeBaseClass(ABC):
 
         try:
             status, resp_list_of_dicts = self.start(
-                self.request_list_of_dict, force_add=force_add, store_id=store_id
+                self.request_list_of_dict
             )
             self.bulk_response.status = status
             self.response_list_of_dict = resp_list_of_dicts

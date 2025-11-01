@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import re
 import string
 import csv
-from common.managers.aws.aws_client import AWSS3
+from common.managers.aws_client import AWSS3
 from boto3.exceptions import S3UploadFailedError
 
 
