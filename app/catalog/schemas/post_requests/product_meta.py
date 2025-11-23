@@ -8,9 +8,10 @@ class MetaDataSubSchema(Schema):
     parent_category_id = fields.Integer(data_key="parentCategoryId")
     occasion_name = fields.String(data_key="occasionName")
     tag_name = fields.String(data_key="tagName")
+    gender = fields.String(data_key="gender")
 
 
 class PostProductMetaSchema(Schema):
     attribute_name = fields.Str(required=True, data_key="attributeName")
-    data = fields.Nested(MetaDataSubSchema(), data_key="flashSaleDiscounts")
+    data = fields.Nested(MetaDataSubSchema())
 

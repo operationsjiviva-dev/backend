@@ -1,4 +1,4 @@
-from catalog.models import Product, Collection, Category, Occasion, Tag, FashionLine
+from catalog.models import Product, Collection, Category, Occasion, Tag, FashionLine, Gender
 
 class ProductMetaManager:
     def __init__(self):
@@ -13,27 +13,33 @@ class ProductMetaManager:
         fashion_line = FashionLine.objects.filter(pk=1).first()
         return fashion_line
 
-    def create_collection(self, collection_name: str, fashion_line_id: int = None):
+    def create_collection(self, collection_name: str, fashion_line_id: int = None, gender: str = "M"):
+        gender = Gender.objects.filter(name=gender).first()
         if not fashion_line_id:
             fashion_line_id = self.get_default_fashion_line().id
-        collection = Collection.objects.filter(name=collection_name, fashion_line_id=fashion_line_id).first()
+        collection = Collection.objects.filter(name=collection_name, fashion_line_id=fashion_line_id, gender=gender).first()
         if not collection: 
             collection = Collection(name=collection_name, fashion_line_id=fashion_line_id)
+            collection.gender = gender
             collection.save()
         return collection
     
-    def create_category(self, category_name: str, parent_id: int = 1):
+    def create_category(self, category_name: str, parent_id: int = 1, gender: str = "M"):
+        gender = Gender.objects.filter(name=gender).first()
         category = Category.objects.filter(name=category_name).first()
         if not category:
             category = Category(name=category_name)
             category.parent_id = parent_id
+            category.gender = gender
             category.save()
         return category
     
-    def create_occasion(self, occasion_name: str):
+    def create_occasion(self, occasion_name: str, gender: str = "M"):
+        gender = Gender.objects.filter(name=gender).first()
         occasion = Occasion.objects.filter(name=occasion_name).first()
         if not occasion:
             occasion = Occasion(name=occasion_name)
+            occasion.gender = gender
             occasion.save()
         return occasion
     
@@ -52,9 +58,10 @@ class ProductMetaManager:
                 "collectionName": collection.name,
                 "collectionId": collection.id,
                 "fashionLine": collection.fashion_line.name,
-                "isActive": collection.is_active
+                "isActive": collection.is_active,
+                "gender": collection.gender.name
             })
-        return collections
+        return response
     
     def get_occasions(self):
         occasions = Occasion.objects.all().order_by('created_on')
@@ -63,9 +70,10 @@ class ProductMetaManager:
             response.append({
                 "occasionName": occasion.name,
                 "occasionId": occasion.id,
-                "isActive": occasion.is_active
+                "isActive": occasion.is_active,
+                "gender": occasion.gender.name
             })
-        return occasions
+        return response
     
     def get_tags(self):
         tags = Tag.objects.all().order_by('created_on')
@@ -76,7 +84,7 @@ class ProductMetaManager:
                 "tagId": tag.id,
                 "isActive": tag.is_active
             })
-        return tags
+        return response
     
     def get_categories(self):
         categories = Category.objects.all().order_by('created_on')
@@ -87,8 +95,9 @@ class ProductMetaManager:
                 "categoryId": category.id,
                 "parentCategory": category.parent.name if category.parent else "",
                 "parentCategoryId": category.parent.id if category.parent else "",
-                "isActive": category.is_active
+                "isActive": category.is_active,
+                "gender": category.gender.name
             })
-        return categories
+        return response
 
     

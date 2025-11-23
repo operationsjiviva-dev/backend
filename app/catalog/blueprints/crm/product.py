@@ -34,18 +34,21 @@ class ProductMetaAPI(CommonResource):
         if attribute_name == ProductMetaAtrributes.COLLECTION:
             collection_name = meta_data.get('collection_name')
             fashion_line_id = meta_data.get('fashion_line_id', None)
-            collection = ProductMetaManager().create_collection(collection_name, fashion_line_id)
+            gender = meta_data.get('gender', "M")
+            collection = ProductMetaManager().create_collection(collection_name, fashion_line_id, gender)
             return SuccessHandler({}, request_obj=request).success_response()
         
         if attribute_name == ProductMetaAtrributes.CATEGORY:
             category_name = meta_data.get('category_name')
             parent_category_id = meta_data.get('parent_category_id', None)
-            category = ProductMetaManager().create_category(category_name, parent_category_id)
+            gender = meta_data.get('gender', "M")
+            category = ProductMetaManager().create_category(category_name, parent_category_id, gender)
             return SuccessHandler({}, request_obj=request).success_response()
         
         if attribute_name == ProductMetaAtrributes.OCCASION:
             occasion_name = meta_data.get('occasion_name')
-            occasion = ProductMetaManager().create_occasion(occasion_name)
+            gender = meta_data.get('gender', "M")
+            occasion = ProductMetaManager().create_occasion(occasion_name, gender)
             return SuccessHandler({}, request_obj=request).success_response()
         
         if attribute_name == ProductMetaAtrributes.TAG:

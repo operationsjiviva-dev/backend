@@ -12,10 +12,18 @@ class FashionLine(TimeStampedModel):
         return self.name
 
 
+class Gender(TimeStampedModel):
+    name = models.CharField(max_length=16, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Collection(TimeStampedModel):
     """Curated grouping under a fashion line (Wedding, New In, Festive, etc.)."""
     fashion_line = models.ForeignKey(FashionLine, on_delete=models.CASCADE, related_name="collections")
     name = models.CharField(max_length=255)
+    gender = models.ForeignKey(Gender, default=1, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -30,6 +38,7 @@ class Category(TimeStampedModel):
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL, related_name="subcategories")
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
+    gender = models.ForeignKey(Gender, default=1, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ("parent", "name")
@@ -42,6 +51,7 @@ class Occasion(TimeStampedModel):
     """Occasions like Wedding, Mehendi, Cocktail, After Party."""
     name = models.CharField(max_length=255, unique=True)
     is_active = models.BooleanField(default=True)
+    gender = models.ForeignKey(Gender, default=1, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -64,7 +74,7 @@ class Product(TimeStampedModel):
     description = models.TextField(blank=True, null=True)
     fabric = models.CharField(max_length=255, default='', blank=True, null=True)
     color = models.CharField(max_length=255, default='', blank=True, null=True)
-    url_slug = models.SlugField(max_length=512, unique=True) #seo friendly url
+    url_slug = models.SlugField(max_length=512, unique=True, default='') #seo friendly url
     primary_image = models.CharField(max_length=1000, default='')
 
     # relationships
