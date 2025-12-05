@@ -6,23 +6,26 @@ from catalog.managers.product_variant_manager import ProductVariantManager
 
 class BULK_UPLOAD_PRODUCT_VARIANTS(BulkUploadeBaseClass):
     required_headers = ["product_id", "size", "price"]
-    optional_headers = []
+    optional_headers = ["is_primary"]
     
     def process_row(self, row: dict, **kwargs):
         fail_reasons = []
-        product_id = row.get("product_id", "").strip()
-        if not product_id or not product_id.isdigit() or not Product.objects.filter(id=int(product_id)).exists():
+        product_id = row.get("product_id", "")
+        if not product_id or not Product.objects.filter(id=int(product_id)).exists():
             fail_reasons.append("Valid product_id is required.")
         size = row.get("size", "").strip()
         if not size or size not in ProductSizes.ALL_SIZES_ORDER:
-            fail_reasons.append(f"Size is required and must be one of {ProductSizes.values}.")
+            fail_reasons.append(f"Size is required and must be one of {ProductSizes.ALL_SIZES_ORDER}.")
         
-        selling_price = row.get("price", "").strip()
+        selling_price = row.get("price", "")
         if not selling_price:
             fail_reasons.append("Price is required.")
+
+        is_primary =  bool(row.get("is_primary", False))
         
         if fail_reasons:
             return False, fail_reasons
+        
         
         variant = ProductVariant.objects.filter(product_id=int(product_id), size=size).first()
         if variant:
@@ -40,6 +43,7 @@ class BULK_UPLOAD_PRODUCT_VARIANTS(BulkUploadeBaseClass):
         variant.size = size
         variant.selling_price = float(selling_price)
         variant.sku = ProductVariantManager.generate_sku_code()
+        variant.is_primary = is_primary
         variant.save()
         row["variant_id"] = variant.id
         return True, row

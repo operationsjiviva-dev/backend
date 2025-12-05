@@ -9,6 +9,7 @@ from catalog.managers.bulk_uploader_manager import BulkUploaderManager
 from common.managers.aws_csv_manager import AWSCSVManager
 from catalog.celery.bulk_uploader import bulk_uploader_runner
 from catalog.schemas.response_schema.bulk_uploader import GenericBulkUploaderRequestSchema
+from common.miscellaneous_values.aws_buckets import AWSBuckets
 
 bulk_uploader_blueprint = Blueprint('bulk_uploader_blueprint', __name__)
 
@@ -53,7 +54,7 @@ class BulkUploadAPI(CommonResource):
         if not is_valid_csv:
             return ErrorHandler(message=message_list).error_response()
         
-        csv_link = AWSCSVManager(bucket_name="generic-bulk-upload").upload_to_aws(list_of_dict=list_of_dict)
+        csv_link = AWSCSVManager(bucket_name=AWSBuckets.GENERIC_BULK_UPLOAD).upload_to_aws(list_of_dict=list_of_dict)
         bulk_upload_request = BulkUploaderManager.add_bulk_upload_request(csv_link, admin_user, upload_type)
         bulk_uploader_runner(upload_type=upload_type, upload_request_id=bulk_upload_request.pk)
         response_schema = GenericBulkUploaderRequestSchema()

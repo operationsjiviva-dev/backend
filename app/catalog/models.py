@@ -74,7 +74,6 @@ class Product(TimeStampedModel):
     description = models.TextField(blank=True, null=True)
     fabric = models.CharField(max_length=255, default='', blank=True, null=True)
     color = models.CharField(max_length=255, default='', blank=True, null=True)
-    url_slug = models.SlugField(max_length=512, unique=True, default='') #seo friendly url
     primary_image = models.CharField(max_length=1000, default='')
 
     # relationships

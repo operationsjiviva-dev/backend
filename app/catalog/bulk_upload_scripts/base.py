@@ -150,7 +150,7 @@ class BulkUploadeBaseClass(ABC):
         This will validate the batch size for any bulk uploader
         """
         settings = SystemSettings.objects.filter(
-            name='bulk_uploader_batch_size').first()
+            key='bulk_uploader_batch_size').first()
         maximum_batch_size = 1000
         if settings and settings.value:
             settings = json.loads(settings.value)

@@ -19,6 +19,8 @@ ipython = "==8.12.3"
 boto3 = "1.37.38"
 cryptography = "*"
 pandas = "*"
+pillow = "*"
+requests = "*"
 
 [dev-packages]
 

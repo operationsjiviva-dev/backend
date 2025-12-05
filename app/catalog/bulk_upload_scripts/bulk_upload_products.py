@@ -1,5 +1,8 @@
 from catalog.bulk_upload_scripts.base import BulkUploadeBaseClass
 from catalog.models import Product, Collection, Category, Occasion, Tag, ProductImage
+from common.miscellaneous_values.aws_buckets import AWSBuckets
+from catalog.miscellaneous_values.product_image import ImageDimensions
+from catalog.handlers.image_upload import run_pipeline
 
 
 class BULK_UPLOAD_PRODUCTS(BulkUploadeBaseClass):
@@ -39,6 +42,8 @@ class BULK_UPLOAD_PRODUCTS(BulkUploadeBaseClass):
         return valid_ids
 
     def process_row(self, row: dict, **kwargs):
+        print(row)
+        print("=====================================================================================")
         fail_reasons = []
         product_name = row.get("name", "").strip()
         if not product_name:
@@ -52,7 +57,7 @@ class BULK_UPLOAD_PRODUCTS(BulkUploadeBaseClass):
         collection_ids = row.get("collection_ids", "").strip().split(",")
         if not collection_ids or not all(cid.strip().isdigit() for cid in collection_ids):
             fail_reasons.append("At least one valid collection_id is required.")
-        image1 = row.get("image1", "").strip()
+        image1 = row.get("image1_aws_url", "").strip()
         if not image1:
             fail_reasons.append("At least one image (image1) is required.")
         url_slug = row.get("url_slug", "").strip()
@@ -60,10 +65,10 @@ class BULK_UPLOAD_PRODUCTS(BulkUploadeBaseClass):
         category_ids = row.get("category_ids", "").strip().split(",")
         occasion_ids = row.get("occasion_ids", "").strip().split(",")
         tag_ids = row.get("tag_ids", "").strip().split(",")
-        image2 = row.get("image2", "").strip()
-        image3 = row.get("image3", "").strip()
-        image4 = row.get("image4", "").strip()
-        image5 = row.get("image5", "").strip()
+        image2 = row.get("image2_aws_url", "").strip()
+        image3 = row.get("image3_aws_url", "").strip()
+        image4 = row.get("image4_aws_url", "").strip()
+        image5 = row.get("image5_aws_url", "").strip()
         
         product = Product.objects.filter(display_name=product_name, color=color).first()
         if product:
@@ -76,10 +81,12 @@ class BULK_UPLOAD_PRODUCTS(BulkUploadeBaseClass):
         product.display_name = product_name
         product.description = description
         product.color = color
+        product.primary_image = image1
+        product.save()
         if fabric:
             product.fabric = fabric
-        if url_slug:
-            product.url_slug = url_slug
+        # if url_slug:
+        #     product.url_slug = url_slug
         
         valid_collection_ids = self.validate_collection_ids(collection_ids)
         if not valid_collection_ids:
@@ -112,10 +119,35 @@ class BULK_UPLOAD_PRODUCTS(BulkUploadeBaseClass):
         order = 0
         for img_url in image_urls:
             if img_url:
-                ProductImage.objects.create(product=product, image_url=img_url, order=order)
+                ProductImage.objects.create(product=product, image_url=img_url, sort_order=order)
                 order += 1
 
         return True, row
 
     def post_upload_changes(self, response_list_of_dict, **kwargs):
         pass
+
+    def pre_upload_changes(self, response_list_of_dict, **kwargs):
+        bucket = AWSBuckets.PRODUCT_IMAGE_BUCKET
+        prefix = ''
+        max_w = ImageDimensions.WIDTH
+        max_h = ImageDimensions.HEIGHT
+        workers = 10
+        force_format = 'PNG'
+
+        updated_data = [{**item,
+                         "image1_aws_url": "",
+                         "image2_aws_url": "",
+                         "image3_aws_url": "",
+                         "image4_aws_url": "",
+                         "image5_aws_url": ""
+                         } for item in response_list_of_dict]
+
+        return run_pipeline(
+            updated_data,
+            bucket,
+            max_w,
+            max_h,
+            workers,
+            prefix,
+            force_format)

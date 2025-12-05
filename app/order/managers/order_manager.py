@@ -88,6 +88,11 @@ class OrderManager:
         orders = Order.objects.filter(**filters).order_by('-created_on')
         return orders
     
+    # def update_order_delivery_status(self, delivery_status: str):
+    #     self.order.delivery_status = delivery_status.upper()
+    #     self.order.save()
+    #     return True
+    
 
 
         
