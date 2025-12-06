@@ -42,8 +42,6 @@ class BULK_UPLOAD_PRODUCTS(BulkUploadeBaseClass):
         return valid_ids
 
     def process_row(self, row: dict, **kwargs):
-        print(row)
-        print("=====================================================================================")
         fail_reasons = []
         product_name = row.get("name", "").strip()
         if not product_name:
