@@ -55,24 +55,30 @@ class ProductManager:
         products = Product.objects.all()
 
         if "collections" in filters:
-            products = products.filter(collections__in=filters["collections"])
+            products = products.filter(collections__id__in=(filters["collections"].split(",")))
 
         if "categories" in filters:
-            products = products.filter(categories__in=filters["categories"])
+            products = products.filter(categories__id__in=filters["categories"].split(","))
 
         if "occasions" in filters:
-            products = products.filter(occasions__in=filters["occasions"])
+            products = products.filter(occasions__id__in=filters["occasions"].split(","))
 
         if "tags" in filters:
-            products = products.filter(tags__in=filters["tags"])
+            products = products.filter(tags__id__in=filters["tags"].split(","))
+        if "color" in filters:
+            products = products.filter(color__in=filters["color"].split(","))
+        if "size" in filters:
+            products = products.filter(variants__size__in=filters["size"].split(","))
+        if "max_price" in filters:
+            products = products.filter(variants__selling_price__lte=float(filters["max_price"]))
+            
 
         #sort
         products = (
-            Product.objects
+            products
             .annotate(primary_price=Min("variants__selling_price", filter=Q(variants__is_primary=True)))
             .order_by("primary_price")
         )
-        print(products.values()[0])
         return products
     
     @classmethod
